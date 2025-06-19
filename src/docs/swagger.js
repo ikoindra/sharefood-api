@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: `${process.env.DATABASE_URL}/api`, // Ensure API_BASE_URL is defined
+        url: `${process.env.API_BASE_URL}/api`,
       },
     ],
   },
