@@ -97,7 +97,6 @@ async function createUser(req, res) {
       userData.profile_picture = profile_picture;
     }
 
-    // Insert user
     User.createUser(userData, (err, newUser) => {
       if (err) {
         console.error("CreateUser DB Error:", err);
@@ -260,51 +259,90 @@ async function getCurrentUser(req, res) {
   }
 }
 
+// Simple reset password controller - only needs email and new_password
 async function resetPassword(req, res) {
   try {
     const { email, new_password } = req.body;
 
     console.log("Reset password request received:", email);
 
+    // Validation
     if (!email || !new_password) {
-      return res
-        .status(400)
-        .json({ message: "Email and new password are required" });
+      return res.status(400).json({
+        message: "Email and new password are required",
+      });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Invalid email format",
+      });
+    }
+
+    // Validate password strength
+    if (new_password.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long",
+      });
+    }
+
+    const passwordRegex = /^(?=.*[A-Z]).+$/;
+    if (!passwordRegex.test(new_password)) {
+      return res.status(400).json({
+        message: "Password must contain at least one uppercase letter",
+      });
+    }
+
+    // Find user by email
     User.findUserByEmail(email, async (err, user) => {
       if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
-      }
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(500).json({
+          message: "Database error",
+          error: err,
+        });
       }
 
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      // Hash new password
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(new_password, saltRounds);
 
+      // Update password
       User.updateUser(
         user.user_id,
         { password: hashedPassword },
         (err, result) => {
           if (err) {
-            return res
-              .status(500)
-              .json({ message: "Error updating password", error: err });
+            return res.status(500).json({
+              message: "Error updating password",
+              error: err,
+            });
           }
 
-          return res
-            .status(200)
-            .json({ message: "Password updated successfully" });
+          return res.status(200).json({
+            message: "Password updated successfully",
+          });
         }
       );
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 }
+
+module.exports = {
+  resetPassword,
+};
 
 module.exports = {
   getUsers,
