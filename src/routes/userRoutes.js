@@ -32,7 +32,6 @@ router.get("/me", authenticateToken, userController.getCurrentUser);
 router.get("/", userController.getUsers);
 router.get("/:id", userController.getUserById);
 router.post("/", upload.none(), userController.createUser);
-
 router.put(
   "/:id",
   authenticateToken,
@@ -58,7 +57,7 @@ router.put(
   },
   userController.updateUser
 );
-
 router.post("/login", userController.loginUser);
+router.put("/reset-password", userController.resetPassword);
 
 module.exports = router;
