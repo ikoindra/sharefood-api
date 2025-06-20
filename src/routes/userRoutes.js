@@ -11,6 +11,7 @@ router.use((req, res, next) => {
 });
 
 router.get("/", userController.getUsers);
+router.put("/reset-password", userController.resetPassword);
 router.get("/:id", userController.getUserById);
 router.post("/", upload.none(), userController.createUser);
 router.put(
@@ -20,6 +21,5 @@ router.put(
   userController.updateUser
 );
 router.post("/login", userController.loginUser);
-router.put("/reset-password", userController.resetPassword);
 
 module.exports = router;

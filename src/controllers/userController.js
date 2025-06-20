@@ -259,21 +259,18 @@ async function getCurrentUser(req, res) {
   }
 }
 
-// Simple reset password controller - only needs email and new_password
 async function resetPassword(req, res) {
   try {
     const { email, new_password } = req.body;
 
     console.log("Reset password request received:", email);
 
-    // Validation
     if (!email || !new_password) {
       return res.status(400).json({
         message: "Email and new password are required",
       });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -281,7 +278,6 @@ async function resetPassword(req, res) {
       });
     }
 
-    // Validate password strength
     if (new_password.length < 8) {
       return res.status(400).json({
         message: "Password must be at least 8 characters long",
@@ -295,7 +291,6 @@ async function resetPassword(req, res) {
       });
     }
 
-    // Find user by email
     User.findUserByEmail(email, async (err, user) => {
       if (err) {
         return res.status(500).json({
@@ -310,11 +305,9 @@ async function resetPassword(req, res) {
         });
       }
 
-      // Hash new password
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(new_password, saltRounds);
 
-      // Update password
       User.updateUser(
         user.user_id,
         { password: hashedPassword },
@@ -339,10 +332,6 @@ async function resetPassword(req, res) {
     });
   }
 }
-
-module.exports = {
-  resetPassword,
-};
 
 module.exports = {
   getUsers,
